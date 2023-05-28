@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.FileMapper">
+  <resultMap id="BaseResultMap" type="com.domain.File">
+    <!--@mbg.generated-->
+    <!--@Table `file`-->
+    <id column="file_id" property="fileId" />
+    <result column="file_name" property="fileName" />
+    <result column="url" property="url" />
+    <result column="pre_url" property="preUrl" />
+    <result column="ext_name" property="extName" />
+    <result column="size" property="size" />
+    <result column="keywords" property="keywords" />
+    <result column="md5" property="md5" />
+    <result column="create_time" property="createTime" />
+    <result column="update_time" property="updateTime" />
+    <result column="st_id" property="stId" />
+    <result column="cl_id" property="clId" />
+    <result column="cg_id" property="cgId" />
+  </resultMap>
+
+  <resultMap id="FileInfoMap" extends="BaseResultMap" type="com.vo.file.FileInfoVO">
+    <result column="realname" property="realname" />
+    <result column="cg_name" property="cgName" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    file_id, file_name, url, pre_url, ext_name, `size`, keywords, md5, create_time, update_time,st_id,cl_id,cg_id
+  </sql>
+
+  <select id="selectFileInfoList" resultMap="FileInfoMap">
+    select
+    t1.file_id, t1.file_name, t1.url, t1.pre_url, t1.ext_name, t1.`size`, t1.keywords, t1.md5, t1.create_time, t1.update_time,t1.st_id,t1.cl_id,t1.cg_id,t2.cg_name,t3.realname
+    from file t1 ,category t2,student t3
+    where t1.cg_id = t2.cg_id and t1.st_id = t3.st_id
+    <if test="cgName != null and cgName != ''">
+      and t2.cg_name like concat('%',#{cgName},'%')
+    </if>
+    <if test="fileName != null and fileName != ''">
+      and t1.file_name like concat('%',#{fileName},'%')
+    </if>
+    <if test="stName != null and stName != ''">
+      and t3.realname like concat('%',#{stName},'%')
+    </if>
+    <if test="keywords != null and keywords != ''">
+      and t1.keywords like concat('%',#{keywords},'%')
+    </if>
+    <if test="clId != null">
+      and t1.cl_id = #{clId}
+    </if>
+
+  </select>
+</mapper>

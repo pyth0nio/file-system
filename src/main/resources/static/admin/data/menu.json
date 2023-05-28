@@ -1,0 +1,74 @@
+[{
+		"id": 1,
+		"title": "工作控制台",
+		"icon": "layui-icon layui-icon-console",
+		"type": 0,
+		"href": "",
+		"children": [{
+			"id": 10,
+			"title": "系统监控",
+			"icon": "layui-icon layui-icon-console",
+			"type": 1,
+			"openType": "_iframe",
+			"href": "view/monitor/index.html"
+		}, {
+			"id": 13,
+			"title": "数据库监控",
+			"icon": "layui-icon layui-icon-console",
+			"type": 1,
+			"openType": "_iframe",
+			"href": "/druid"
+		}]
+	},
+	{
+		"id": "system",
+		"title": "基础信息",
+		"icon": "layui-icon layui-icon-user",
+		"type": 0,
+		"href": "",
+		"children": [{
+			"id": 601,
+			"title": "学生管理",
+			"icon": "layui-icon layui-icon-face-smile",
+			"type": 1,
+			"openType": "_iframe",
+			"href": "view/system/student.html"
+		},
+			{
+				"id": 602,
+				"title": "班级管理",
+				"icon": "layui-icon layui-icon-face-cry",
+				"type": 1,
+				"openType": "_iframe",
+				"href": "view/system/classes.html"
+			}
+		]
+	},
+	{
+		"id": "file",
+		"title": "资源信息",
+		"icon": "layui-icon layui-icon-read",
+		"type": 0,
+		"href": "",
+		"children": [{
+			"id": 701,
+			"title": "类别管理",
+			"icon": "layui-icon layui-icon-face-smile",
+			"type": 1,
+			"openType": "_iframe",
+			"href": "view/file/category.html"
+		},
+			{
+				"id": 702,
+				"title": "文件管理",
+				"icon": "layui-icon layui-icon-read",
+				"type": 1,
+				"openType": "_iframe",
+				"href": "view/file/file.html"
+			}
+		]
+	}
+
+
+
+]

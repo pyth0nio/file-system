@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<title>登录</title>
+		<!-- 样 式 文 件 -->
+		<link rel="stylesheet" href="component/pear/css/pear.css" />
+		<link rel="stylesheet" href="admin/css/other/login.css" />
+	</head>
+    <!-- 代 码 结 构 -->
+	<body background="admin/images/background.svg" style="background-size: cover;">
+		<form class="layui-form" action="javascript:void(0);">
+			<div class="layui-form-item">
+				<img class="logo" src="admin/images/logo.png" />
+				<div class="title">File  System</div>
+				<div class="desc">
+						张 大 大 的 文 件 管 理 系 统
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<input name="username"  lay-reqText="请输入账号" placeholder="账 号  " lay-verify="required" hover class="layui-input"  />
+			</div>
+			<div class="layui-form-item">
+				<input name="password" lay-reqText="请输入密码" placeholder="密 码  " lay-verify="required" hover class="layui-input"  />
+			</div>
+			<div class="layui-form-item">
+				<input name="code" lay-reqText="请输入验证码" placeholder="验证码  "  hover   lay-verify="required" class="code layui-input layui-input-inline"  />
+				<img src="user/code" class="codeImage" id="code"/>
+			</div>
+			<div class="layui-form-item">
+				<button type="button" class="pear-btn pear-btn-success login" lay-submit lay-filter="login">
+					登 入
+				</button>
+			</div>
+		</form>
+		<!-- 资 源 引 入 -->
+		<script src="component/layui/layui.js"></script>
+		<script src="component/pear/pear.js"></script>
+		<script>
+			layui.use(['form', 'button', 'popup','jquery'], function() {
+				var form = layui.form;
+				var button = layui.button;
+				var popup = layui.popup;
+				var $ = layui.jquery;
+
+				$("#code").click(function () {
+					this.src = "user/code?"+new Date();
+				});
+
+                // 登 录 提 交
+				form.on('submit(login)', function(data) {
+					button.load({
+						elem: '.login',
+						time: 1500,
+						done: function() {
+							$.post("user/login",data.field,function (rs) {
+								if (rs.code != 0) {
+									popup.failure(rs.msg);
+									return;
+								}
+								let user = rs.data;
+								sessionStorage.setItem('user',JSON.stringify(user))
+								popup.success("登录成功", function() {
+									location.href = "index.html"
+								});
+							})
+						}
+					})
+					return false;
+				});
+			})
+		</script>
+	</body>
+</html>

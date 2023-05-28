@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.StudentMapper">
+    <resultMap id="BaseResultMap" type="com.domain.Student">
+        <!--@mbg.generated-->
+        <!--@Table student-->
+        <id column="st_id" property="stId"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="realname" property="realname"/>
+        <result column="sex" property="sex"/>
+        <result column="birth" property="birth"/>
+        <result column="cl_id" property="clId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <resultMap id="StudentInfo" extends="BaseResultMap" type="com.vo.student.StudentInfoVO">
+        <result column="cl_name" property="clName"></result>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        st_id, username, `password`, realname, sex, birth, cl_id, create_time, update_time
+    </sql>
+
+    <select id="selectStudentInfo" resultMap="StudentInfo">
+        select st_id,
+               username,
+               `password`,
+               realname,
+               sex,
+               birth,
+               t1.cl_id,
+               t2.cl_name,
+               t1.create_time,
+               t1.update_time
+        from student t1
+                 left join classes t2 on
+            t1.cl_id = t2.cl_id
+        <where>
+            <if test="realname != null and realname !=''">
+                and  realname like  concat('%',#{realname},'%')
+            </if>
+            <if test="username != null and username !='' ">
+                and username = #{username}
+            </if>
+            <if test="clId != null">
+                and t1.cl_id = #{clId}
+            </if>
+        </where>
+    </select>
+</mapper>

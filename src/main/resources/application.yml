@@ -1,0 +1,39 @@
+#数据源配置
+spring:
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://127.0.0.1:3306/file_system?useUnicode=true&useSSL=false&characterEncoding=UTF8&allowPublicKeyRetrieval=true
+      username: root
+      password: 123456
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+      filter:
+        stat:
+          enabled: true
+          db-type: mysql        # 数据库的类型
+          log-slow-sql: true    # 开启慢SQL记录功能
+          slow-sql-millis: 2000 # 默认3000毫秒，这里超过2s，就是慢，记录到日志
+  jackson:
+    date-format: "yyyy-MM-dd HH:mm"
+    time-zone: "GMT+8"
+#mybatis
+mybatis:
+  # xml文件
+  mapper-locations: classpath:/mapper/*Mapper.xml
+  # 类别名
+  type-aliases-package: com.domain
+  # 日志
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+# 七牛云 配置
+qiniu:
+  ak: HWXnPwctWbz4wLrsbG9vErF3Cq-B5mt4LZn988ce
+  sk: oKUU-Bob1hxvV9J5CUCq9Cy0Ft38UWtqxxZH9eel
+  domain: rtax5f9do.bkt.clouddn.com
+  bucket: classes-file
+

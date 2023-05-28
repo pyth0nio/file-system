@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>学生管理</title>
+	<script src="../../vue/vue.js"></script>
+	<script src="../../vue/index.js"></script>
+	<link rel="stylesheet" href="../../vue/index.css">
+	<script src="../../vue/jQuery-3.6.0.js"></script>
+</head>
+<body class="pear-container">
+<div id="app">
+	<el-card>
+		<el-form size="small" :model="searchParam" :inline="true" label-width="80px" ref="searchFormRef">
+			<el-form-item label="学生名称" prop="realname">
+				<el-input placeholder="学生名称" v-model="searchParam.realname"></el-input>
+			</el-form-item>
+			<el-form-item label="学生账号" prop="username">
+				<el-input placeholder="学生账号" v-model="searchParam.username"></el-input>
+			</el-form-item>
+			<el-form-item label="班级" prop="clId">
+				<el-select v-model="searchParam.clId" placeholder="请选择">
+					<el-option
+							v-for="item in classes"
+							:key="item.clId"
+							:label="item.clName"
+							:value="item.clId">
+					</el-option>
+				</el-select>
+			</el-form-item>
+			<el-form-item>
+				<el-button size="small" icon="el-icon-search" type="success" @click="doSearch">查询</el-button>
+				<el-button size="small" icon="el-icon-refresh-left" @click="resetSearchParam">重置</el-button>
+			</el-form-item>
+		</el-form>
+	</el-card>
+	<el-card style="margin-top: 5px">
+		<div slot="header" class="clearfix">
+			<el-button  icon="el-icon-plus" type="success" size="small" @click="toAdd">添加</el-button>
+		</div>
+		<!-- 数据表格 -->
+		<el-table :data="pageData.data">
+			<el-table-column
+					label="学生ID"
+					prop="stId"
+			></el-table-column>
+			<el-table-column
+					label="学生名称"
+					prop="realname"
+			></el-table-column>
+			<el-table-column
+					label="学生账号"
+					prop="username"
+			></el-table-column>
+			<el-table-column
+					label="学生密码"
+					prop="password"
+			></el-table-column>
+			<el-table-column
+					label="性别"
+					prop="sex"
+			></el-table-column>
+			<el-table-column
+					label="生日"
+					prop="birth"
+			></el-table-column>
+			<el-table-column
+					label="班级名称"
+					prop="clName"
+			></el-table-column>
+			<el-table-column
+					label="创建时间"
+					prop="createTime"
+					min-width="130"
+			></el-table-column>
+			<el-table-column
+					label="修改时间"
+					prop="updateTime"
+					min-width="130"
+			></el-table-column>
+			<el-table-column label="操作" fixed="right" min-width="180px">
+				<template slot-scope="scope">
+					<el-button
+							size="mini"
+							@click="toEdit( scope.row)">修改
+					</el-button>
+					<el-button
+							size="mini"
+							type="danger"
+							@click="toDelete(scope.row)">删除
+					</el-button>
+				</template>
+			</el-table-column>
+		</el-table>
+		<!-- 分页 -->
+		<div style="margin-top: 10px">
+			<el-pagination
+					@size-change="doSizeChange"
+					@current-change="doCurrentChange"
+					:current-page="pageData.page"
+					:page-sizes="[10, 20, 30, 50]"
+					:page-size="pageData.limit"
+					layout="total, sizes, prev, pager, next, jumper"
+					:total="pageData.total">
+			</el-pagination>
+		</div>
+	</el-card>
+	<!-- 弹层 -->
+	<el-dialog title="添加学生" :visible.sync="addVisible" :close-on-click-modal="false">
+		<el-form :model="addForm" ref="addFormRef" :rules="addFormRules" label-width="80px">
+			<el-form-item label="学生名称" prop="realname">
+				<el-input v-model="addForm.realname" placeholder="学生名称" autocomplete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="登录账号" prop="username">
+				<el-input v-model="addForm.username" placeholder="登录账号" autocomplete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="登录密码" prop="password">
+				<el-input v-model="addForm.password" placeholder="登录密码" autocomplete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="生日" prop="birth">
+				<el-date-picker value-format="yyyy-MM-dd" v-model="addForm.birth" placeholder="请选择生日"></el-date-picker>
+			</el-form-item>
+			<el-form-item label="性别" prop="sex">
+				<el-radio-group v-model.number="addForm.sex">
+					<el-radio label="男">男</el-radio>
+					<el-radio label="女" >女</el-radio>
+				</el-radio-group>
+			</el-form-item>
+
+			<el-form-item label="班级" prop="clId">
+				<el-select v-model="addForm.clId" placeholder="请选择">
+					<el-option
+							v-for="item in classes"
+							:key="item.clId"
+							:label="item.clName"
+							:value="item.clId">
+					</el-option>
+				</el-select>
+			</el-form-item>
+		</el-form>
+		<div slot="footer" class="dialog-footer">
+			<el-button @click="canelAdd">取 消</el-button>
+			<el-button type="primary" @click="doAdd">确 定</el-button>
+		</div>
+	</el-dialog>
+
+
+	<el-dialog title="修改学生" :visible.sync="editVisible" :close-on-click-modal="false">
+		<el-form :model="editForm" ref="editFormRef" :rules="editFormRules" label-width="80px">
+			<el-form-item label="学生名称" prop="realname">
+				<el-input v-model="editForm.realname" placeholder="学生名称" autocomplete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="登录账号" prop="username">
+				<el-input v-model="editForm.username" placeholder="登录账号" autocomplete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="登录密码" prop="password">
+				<el-input v-model="editForm.password" placeholder="登录密码" autocomplete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="性别" prop="sex">
+				<el-radio-group v-model="editForm.sex">
+					<el-radio label="男">男</el-radio>
+					<el-radio label="女" >女</el-radio>
+				</el-radio-group>
+			</el-form-item>
+			<el-form-item label="生日" prop="birth">
+				<el-date-picker value-format="yyyy-MM-dd" v-model="editForm.birth" placeholder="请选择生日"></el-date-picker>
+			</el-form-item>
+			<el-form-item label="班级" prop="clId">
+				<el-select v-model="editForm.clId" placeholder="请选择">
+					<el-option
+							v-for="item in classes"
+							:key="item.clId"
+							:label="item.clName"
+							:value="item.clId">
+					</el-option>
+				</el-select>
+			</el-form-item>
+		</el-form>
+		<div slot="footer" class="dialog-footer">
+			<el-button @click="canelEdit">取 消</el-button>
+			<el-button type="primary" @click="doEdit">确 定</el-button>
+		</div>
+	</el-dialog>
+</div>
+<script>
+	// 配置项
+	let option = {
+		el: "#app",
+		data: { // 数据
+			searchParam: {
+				clId: undefined,
+				realname: undefined,
+				username: undefined,
+				page: 1,
+				limit: 10
+			},
+			pageData: {
+				data: [], // 数据
+				page: 1,// 页码
+				limit: 10,//每页条数
+				total: 100 // 总数据条数
+			},
+			addVisible: false,
+			addForm: {
+				realname: undefined,
+				username: undefined,
+				password: undefined,
+				clId: undefined,
+				sex:undefined,
+				birth:undefined
+			},
+			addFormRules: {
+				realname: {required: true, message: "请输入学生名称", trigger: "blur"},
+				username: {required: true, message: "请输入学生账号", trigger: "blur"},
+				password: {required: true, message: "请输入学生密码", trigger: "blur"},
+				sex: {required: true, message: "请输选择学生性别", trigger: "blur"},
+				birth: {required: true, message: "请输选择学生生日", trigger: "blur"},
+				clId: {required: true, message: "请选择班级", trigger: "blur"}
+			},
+			editVisible: false,
+			editForm: {
+				stId: undefined,
+				realname: undefined,
+				username: undefined,
+				password: undefined,
+				clId: undefined,
+				sex:undefined,
+				birth:undefined
+			},
+			editFormRules: {
+				realname: {required: true, message: "请输入学生名称", trigger: "blur"},
+				username: {required: true, message: "请输入学生账号", trigger: "blur"},
+				password: {required: true, message: "请输入学生密码", trigger: "blur"},
+				sex: {required: true, message: "请输选择学生性别", trigger: "blur"},
+				clId: {required: true, message: "请选择班级", trigger: "blur"}
+			},
+			classes:[]
+		},
+		created() {
+			this.getStudentPage();
+			this.getAllClasses();
+		},
+		methods: {
+			getAllClasses(){
+				$.get("/classes/list",  rs => {
+					if (rs.code == 0) {
+						// 数据
+						this.classes = rs.data;
+
+					}
+				})
+			},
+
+			// 进行搜索
+			doSearch() {
+				// 搜索 永远从第一页开始
+				this.searchParam.page = 1;
+				this.getStudentPage();
+			},
+			resetSearchParam() {
+				this.$refs.searchFormRef.resetFields();
+			},
+			// 获取 学生数据
+			getStudentPage() {
+				$.get("/user/page", this.searchParam, rs => {
+					if (rs.code == 0) {
+						// 数据
+						this.pageData.data = rs.data.data;
+						this.pageData.page = rs.data.page;
+						this.pageData.limit = rs.data.limit;
+						this.pageData.total = rs.data.total;
+					}
+				})
+			},
+			toEdit(rowData) {
+				this.editVisible = true;
+				this.editForm.stId = rowData.stId;
+				this.editForm.realname = rowData.realname;
+				this.editForm.username = rowData.username;
+				this.editForm.password = rowData.password;
+				this.editForm.sex = rowData.sex;
+				this.editForm.birth = rowData.birth;
+				this.editForm.clId = rowData.clId;
+			},
+			toDelete(rowData) {
+
+				this.$confirm('确定要删除【' + rowData.realname + '】吗?', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					$.get("/user/delete", {stId: rowData.stId}, result => {
+
+						if (result.code != 0) {
+							this.$message.error(result.msg);
+							return;
+						}
+						this.$message.success(result.msg);
+						// 刷新数据
+						this.doSearch();
+					})
+				}).catch(() => {
+					this.$message({
+						type: 'info',
+						message: '已取消删除'
+					});
+				});
+			},
+
+			doSizeChange(size) {
+				//页码条数发生变化
+				this.searchParam.page = 1;
+				this.searchParam.limit = size;
+				this.getStudentPage();
+			},
+			doCurrentChange(page) {
+				this.searchParam.page = page;
+				this.getStudentPage();
+			},
+			toAdd() {
+				// 进行添加
+				this.addVisible = true;
+			},
+			canelAdd() {
+				// 重置新增的表单
+				this.$refs.addFormRef.resetFields();
+				this.addVisible = false;
+			},
+			canelEdit() {
+				// 重置新增的表单
+				this.$refs.editFormRef.resetFields();
+				this.editVisible = false;
+			},
+			doAdd() {
+				// 进行添加提交
+				this.$refs.addFormRef.validate(rs => {
+					// 如果 rs 是 true 说明校验通过
+					if (rs) {
+						// 进行数据提交
+						$.post("/user/add", this.addForm, result => {
+							if (result.code != 0) {
+								this.$message.error(result.msg);
+								return;
+							}
+							this.$message.success(result.msg);
+							//关闭弹层
+							this.canelAdd();
+							// 刷新数据
+							this.doSearch();
+						});
+					}
+				});
+			},
+			doEdit() {
+				// 进行添加提交
+				this.$refs.editFormRef.validate(rs => {
+					// 如果 rs 是 true 说明校验通过
+					if (rs) {
+						// 进行数据提交
+						$.post("/user/edit", this.editForm, result => {
+							if (result.code != 0) {
+								this.$message.error(result.msg);
+								return;
+							}
+							this.$message.success(result.msg);
+							//关闭弹层
+							this.canelEdit();
+							// 刷新数据
+							this.doSearch();
+						});
+					}
+				});
+			},
+		}
+
+	}
+	const app = new Vue(option);
+</script>
+</body>
+</html>
